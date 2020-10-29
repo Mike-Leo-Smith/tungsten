@@ -67,6 +67,7 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler) {
             if (medium) {
                 mediumSample.continuedWeight = throughput;
                 if (!medium->sampleDistance(sampler, ray, state, mediumSample)) {
+                    write_diffuse_specular();
                     return emission;
                 }
                 emission += throughput * mediumSample.emission;
@@ -81,6 +82,7 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler) {
                 hitDistance += ray.farT();
                 
                 if (mediumBounces == 1 && !_settings.lowOrderScattering) {
+                    write_diffuse_specular();
                     return emission;
                 }
                 
@@ -143,7 +145,6 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler) {
             }
             
             if (throughput.max() == 0.0f) {
-                write_diffuse_specular();
                 break;
             }
             
@@ -158,9 +159,13 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler) {
             }
             
             if (std::isnan(ray.dir().sum() + ray.pos().sum())) {
+                emission = nanDirColor;
+                write_diffuse_specular();
                 return nanDirColor;
             }
             if (std::isnan(throughput.sum() + emission.sum())) {
+                emission = nanBsdfColor;
+                write_diffuse_specular();
                 return nanBsdfColor;
             }
             
@@ -175,6 +180,8 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler) {
         }
         
         if (std::isnan(throughput.sum() + emission.sum())) {
+            emission = nanEnvDirColor;
+            write_diffuse_specular();
             return nanEnvDirColor;
         }
         
