@@ -1,16 +1,10 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.17...3.18)
 project(Tungsten)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-include(CXX11)
-check_for_cxx11_compiler(CXX11_COMPILER)
-
-if(CXX11_COMPILER)
-    enable_cxx11()
-else()
-    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} seems to have no C++11 support. Please try again with a more recent compiler version.")
-endif()
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # AVX does not do much benefit at the moment, but breaks compilation on some platforms.
 # Disabled for now until AVX becomes important enough to reconsider.
@@ -40,7 +34,7 @@ else()
 endif()
 
 if (MSVC)
-    add_definitions(-DCONSTEXPR=const -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
 else()
     add_definitions(-DCONSTEXPR=constexpr)
 endif()
@@ -107,7 +101,7 @@ else()
     message(STATUS "No OpenEXR detected. Building without .exr support")
 endif()
 
-find_package(JPEG)
+#find_package(JPEG)
 if (JPEG_FOUND)
     message(STATUS "JPEG library detected.")
     add_definitions(-DJPEG_AVAILABLE)
@@ -117,7 +111,7 @@ else()
     message(STATUS "No JPEG library detected. Falling back to stb_image JPG decoder")
 endif()
 
-find_package(OpenVDB)
+#find_package(OpenVDB)
 find_package(TBB)
 if (OPENEXR_FOUND AND OPENVDB_FOUND AND TBB_FOUND)
     message(STATUS "OpenVDB detected. Building with .vdb support")
